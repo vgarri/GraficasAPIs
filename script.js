@@ -1,14 +1,6 @@
-// Practicaremos cómo crear gráficas con las librerías vistas en clase
-
-// Pediremos las películas de Star Wars y pintaremos una gráfica de líneas en la que podamos ver cada una de las películas.
-// En el eje X el nombre de la película
-// En el eje Y año de publicación
-// API ENDPOINT --> https://swapi.dev/api/films/
-// Pediremos los personajes de Star Wars y pintaremos una gráfica de barras en la que podamos ver
-// En el eje X el nombre del personaje
-// En el eje Y el número de películas en las que ha participado.
-// API ENDPOINT --> https://swapi.dev/api/people/
-// Para pintar todo esto usaremos Chartist Link a la docu: Chartist
+//declaramos variables globales vacías para luego acceder a ellas desde la funcion de pintarGraficas
+//se puede hacer con for each, llenando las variables dentro de la llave del mismo
+//usar depuracion en vez de console.log
 let nombres;
 let anios;
 let nombrePersonaje;
@@ -19,8 +11,9 @@ async function frescor() {
     let resultados = data.results;
     nombres = resultados.map(pelicula => pelicula.title);
     let release = resultados.map(pelicula => pelicula.release_date);
-    anios = release.map(anio => anio.slice(0,4));
-    //segundo fetch para la segunda gráfica
+    //slice para quedarnos con solo los cuatro caracteres del primer elemento (0) del array de años
+    anios = release.map(anio => anio.slice(0, 4));
+    //segundo fetch para la segunda gráfica, usamos la misma funcion
     let response2 = await fetch("https://swapi.dev/api/people/");
     let data2 = await response2.json();
     let resultados2 = data2.results;
@@ -30,40 +23,68 @@ async function frescor() {
 
 }
 frescor();
-
-async function pintarGraf(){
-    await frescor();
+//la funcion incluye al menos un fetch, por lo que se usa await para 
+//acceder a los datos, y así acceder a las variables globales, de otra forma las 
+//variables globales no se "cargan"
+async function pintarGraf() {
+    await frescor(); 
     console.log(nombrePersonaje)
     new Chartist.Line('.ct-chart', {
         labels: nombres,
         series: [
-          anios
+            anios
         ]
-      }, {
-        fullWidth: true,
+    }, {
+        fullWidth: false,
         chartPadding: {
-          right: 40
+            top: 30,
+            right: 30,
+            left: 25
         }
-      });
-      // grafica dos
-      new Chartist.Bar('.bar-chart', {
+       , axisY: {
+        type: Chartist.AutoScaleAxis,
+            onlyInteger: true,
+            divisor: 1,
+            labelInterpolationFnc: function (value, index) {
+                return index % 1 === 0 ? value : null;
+            }
+            
+        }
+        
+    });
+    // grafica dos
+    new Chartist.Bar('.bar-chart', {
         labels: nombrePersonaje,
         series: [
-          numeroPeliculas
+            numeroPeliculas
         ]
-      }, {
+    }, {
+    
         stackBars: false,
         axisY: {
-          labelInterpolationFnc: function(value) {
-            return (value);
-          }
+            type: Chartist.AutoScaleAxis,
+            onlyInteger: true,
+            labelInterpolationFnc: function (value, index) {
+                return (value);
+            }
         }
-      }).on('draw', function(data) {
-        if(data.type === 'bar') {
-          data.element.attr({
-            style: 'stroke-width: 30px'
-          });
+    }).on('draw', function (data) {
+        if (data.type === 'bar') {
+            data.element.attr({
+                style: 'stroke-width: 30px'
+            });
         }
-      });
+    });
 }
 pintarGraf();
+
+var options = {
+    high: 10,
+    low: -10,
+    axisX: {
+      labelInterpolationFnc: function(value, index) {
+        return index % 2 === 0 ? value : null;
+      }
+    }
+  };
+  

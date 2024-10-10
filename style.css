@@ -1,6 +1,12 @@
 body{
+    padding-top: 5%;
     font-family: sans-serif;
     background-color: #E7C6FF;
     display:flex;
     flex-direction: column;
+    height: 100vh;
+}
+body > div{
+    height: 200px;
+
 }
